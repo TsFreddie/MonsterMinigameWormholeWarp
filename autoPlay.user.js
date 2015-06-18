@@ -686,6 +686,15 @@ function useAbilitiesAt100() {
 	if (wormholeOn100 && !w.SteamDB_Wormhole_Timer) {
 		advLog("At level % 100 = 0, forcing the use of wormholes nonstop", 2);
 		w.SteamDB_Wormhole_Timer = w.setInterval(function(){
+			if ((s().m_rgGameData.level + 1) % 100 !== 0) {
+				// We're not on a *00 level anymore, stop!!
+				w.clearInterval(w.SteamDB_Wormhole_Timer);
+				w.SteamDB_Wormhole_Timer = false;
+				
+				//Clear queue! don't overflow it!
+				clearAbilityQueue(ABILITIES.WORMHOLE);
+				return;
+			}
 			if (bHaveItem(ABILITIES.WORMHOLE)) triggerAbility(ABILITIES.WORMHOLE); //wormhole
 		}, 500);
 	}
@@ -1754,6 +1763,22 @@ function tryUsingAbility(itemId, checkInLane, forceAbility) {
 	triggerAbility(itemId);
 
 	return true;
+}
+
+function clearAbilityQueue(abilityId) {
+	newQueue = [];
+	for (var i = 0; i < s().m_rgAbilityQueue.length; i++)
+	{
+		if (s().m_rgAbilityQueue[i] != {'ability': abilityId})
+		{
+			newQueue.push(s().m_rgAbilityQueue[i]);
+		}
+	}
+	s().m_rgAbilityQueue = newQueue;
+	
+	var nCooldownDuration = 0;
+	s().ClientOverride('ability', abilityId, Math.floor(Date.now() / 1000) + nCooldownDuration);
+	s().ApplyClientOverrides('ability', true);
 }
 
 function triggerAbility(abilityId) {
