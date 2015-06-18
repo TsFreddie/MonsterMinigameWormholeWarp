@@ -1756,6 +1756,18 @@ function tryUsingAbility(itemId, checkInLane, forceAbility) {
 	return true;
 }
 
+function clearAbilityQueue(abilityId) {
+	newQueue = [];
+	for (var i = 0; i < s().m_rgAbilityQueue.length; i++)
+	{
+		if (s().m_rgAbilityQueue[i] != {'ability': abilityId})
+		{
+			newQueue.push(s().m_rgAbilityQueue[i]);
+		}
+	}
+	s().m_rgAbilityQueue = newQueue;
+}
+
 function triggerAbility(abilityId) {
 	s().m_rgAbilityQueue.push({'ability': abilityId});
 
